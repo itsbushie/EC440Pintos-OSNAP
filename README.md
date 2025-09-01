@@ -5,5 +5,4 @@ but realistic enough to understand OS in depth (it can run x86 machine and simul
 including QEMU, Bochs and VMWare Player!). The main source code, documentation and assignments 
 are developed by Ben Pfaff and others from Stanford (refer to its [LICENSE](src/LICENSE)).
 
-For students in the class, please download the release version for this branch at https://github.com/bu-ec440/pintos.git
-# ec440-pintos
+For students in the class, please download the release version for this branch at https://github.com/yigonghu/ec440-pintos
