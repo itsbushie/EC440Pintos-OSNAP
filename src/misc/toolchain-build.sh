@@ -6,7 +6,7 @@
 #
 # Tested on Mac OS, Ubuntu and Fedora.
 #
-# Author: Ryan Huang <huang@cs.jhu.edu>
+# Author: Yigong Hu <yigongh@bu.edu>
 #
 # Example Usage: ./toolchain-build.sh /home/ryan/318/toolchain
 #
@@ -68,9 +68,9 @@ usage()
                          Must be one of {binutils, gcc, gdb}.
 
   Example:
-    1. $0 /home/ryan/318/toolchain
-    2. $0 /home/ryan/318/toolchain gcc
-    3. $0 --prefix /usr/local /home/ryan/318/toolchain gdb
+    1. $0 /home/yigongh/440/toolchain
+    2. $0 /home/yigongh/440/toolchain gcc
+    3. $0 --prefix /usr/local /home/yigongh/440/toolchain gdb
 
 EOF
 }
@@ -145,7 +145,7 @@ TARGET=i386-elf
 
 # Download sources
 if [ $tool == "all" -o $tool == "binutils" ]; then
-  download_and_check https://ftp.gnu.org/gnu/binutils/binutils-2.27.tar.gz 26253bf0f360ceeba1d9ab6965c57c6a48a01a8343382130d1ed47c468a3094f
+  download_and_check https://ftp.gnu.org/gnu/binutils/binutils-2.43.tar.bz2 fed3c3077f0df7a4a1aa47b080b8c53277593ccbb4e5e78b73ffb4e3f265e750
 fi
 if [ $tool == "all" -o $tool == "gcc" ]; then
   download_and_check https://ftp.gnu.org/gnu/gcc/gcc-6.2.0/gcc-6.2.0.tar.bz2 9944589fc722d3e66308c0ce5257788ebd7872982a718aa2516123940671b7c5
@@ -166,16 +166,26 @@ fi
 if [ $tool == "all" -o $tool == "gdb" ]; then
   download_and_check https://ftp.gnu.org/gnu/gdb/gdb-7.12.1.tar.xz 4607680b973d3ec92c30ad029f1b7dbde3876869e6b3a117d8a7e90081113186
   echo "Patching GDB..."
+  pwd 
   pushd $CWD/src/gdb-7.12.1
   cat $SCRIPT_DIR/gdb-7.12.1-python.patch | patch -p2
+  popd
+fi
+
+# Apply a patch to fix the fdopen macro conflict in zutil.h
+if [ $tool == "all" -o $tool == "binutils" ]; then
+  echo "Patching Binutils..."
+  $CWD
+  pushd $CWD/src/binutils-2.43/zlib
+  cat $SCRIPT_DIR/binutils-2.43-fdopen.patch | patch -p0 || perror "Failed to pat ch zutil.h"
   popd
 fi
 
 if [ $tool == "all" -o $tool == "binutils" ]; then
   echo "Building binutils..."
   mkdir -p $CWD/build/binutils && cd $CWD/build/binutils
-  ../../src/binutils-2.27/configure --prefix=$PREFIX --target=$TARGET \
-    --disable-multilib --disable-nls --disable-werror || perror "Failed to configure binutils"
+  ../../src/binutils-2.43/configure --prefix=$PREFIX --target=$TARGET \
+    --disable-multilib --disable-nls --disable-werror|| perror "Failed to configure binutils"
   make -j8 || perror "Failed to make binutils"
   make install
 fi
