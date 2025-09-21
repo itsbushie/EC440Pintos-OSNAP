@@ -134,11 +134,71 @@ pintos_init (void)
     run_actions (argv);
   } else {
     // TODO: no command line passed to kernel. Run interactively 
-  }
+    
+    //size of command buffer
+    
+  #define CMD_BUFFER_SIZE 128
+    char cmd_buffer[CMD_BUFFER_SIZE];
 
-  /* Finish up. */
-  shutdown ();
-  thread_exit ();
+    // start the monitor
+    for (;;) 
+      {
+        char *p = cmd_buffer;
+        
+        // prompter
+        printf ("BUOS> ");
+        
+        // Read characters until a newline is entered.
+        for (;;)
+          {
+            // Read one character from the keyboard. 
+            char c = input_getc ();
+            
+            //checks the end of the line
+            if (c == '\r' || c == '\n')
+              {
+                //ai assisteance helped me with this part
+                *p = '\0'; //null-termination
+                printf ("\n");
+                break; //Exit reading loop 
+              }
+              //this handles backspaces
+            else if (c == '\b')
+              {
+                if (p > cmd_buffer){
+                  p--;
+                  printf ("\b \b");
+                }
+              }
+            else{
+            //Send characters back to console
+              if (p < cmd_buffer + CMD_BUFFER_SIZE - 1)
+                {
+                  *p++ = c;
+                  putchar (c);
+                }
+              }
+          }
+
+        // Parse the input and execute the command. 
+        if (strcmp (cmd_buffer, "whoami") == 0)
+          {
+            // Handle the "whoami" command. 
+            printf ("Anthony Nguyen\n"); 
+          }
+        else if (strcmp (cmd_buffer, "exit") == 0)
+          {
+            //Handle the "exit" command. 
+            shutdown_power_off(); 
+            //exit pintos
+          }
+        else
+          {
+            // if its an unknown command
+            printf ("invalid command\n");
+          }
+    }
+  }
 }
 
 /* Clear the "BSS", a segment that should be initialized to
