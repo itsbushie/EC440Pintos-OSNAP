@@ -1,3 +1,9 @@
+# Notes 
+
+
+
+
+
 # Pintos
 Labs for undergraduate OS class (EC440) at Boston University. [Pintos](http://pintos-os.org) 
 is a teaching operating system for x86, challenging but not overwhelming, small
