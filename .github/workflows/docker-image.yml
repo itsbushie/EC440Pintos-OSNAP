@@ -9,31 +9,36 @@ on:
       - 'README.md'
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Cache Docker layers
-      uses: actions/cache@v3
+
+    - name: Restore cached Docker image
+      id: cache-docker
+      uses: actions/cache@v4
       with:
-        path: /var/lib/docker
+        path: image.tar
         key: ${{ runner.os }}-docker-buec440-pintos-latest
-        restore-keys: |
-          ${{ runner.os }}-docker-
-    
+
+    - name: Load Docker image from cache (if available)
+      if: steps.cache-docker.outputs.cache-hit == 'true'
+      run: docker load -i image.tar
+
+    - name: Pull and save Docker image (if not cached)
+      if: steps.cache-docker.outputs.cache-hit != 'true'
+      run: |
+        docker pull buec440/pintos:latest
+        docker save buec440/pintos:latest -o image.tar
+
     - name: Set up directory on runner
       run: |
-        # Create the 'pintos' directory
         mkdir pintos
-        # Move 'src', 'setup.sh', and 'README.md' into the 'pintos' directory
         mv src pintos/
         mv setup.sh pintos/
         mv README.md pintos/
-    
+
     - name: Compile and Run Pintos
       run: |
         docker run \
