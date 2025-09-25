@@ -1,0 +1,48 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /var/lib/docker
+        key: ${{ runner.os }}-docker-${{ hashFiles('**/Dockerfile') }}
+        restore-keys: |
+          ${{ runner.os }}-docker-
+    
+    - name: Set up directory on runner
+      run: |
+        # Create the 'pintos' directory
+        mkdir pintos
+        # Move 'src', 'setup.sh', and 'README.md' into the 'pintos' directory
+        mv src pintos/
+        mv setup.sh pintos/
+        mv README.md pintos/
+    
+    - name: Compile and Run Pintos
+      run: |
+        docker run \
+          --rm \
+          -e BXSHARE='/home/BUOS/toolchain/x86_64/share/bochs' \
+          --mount type=bind,source="$(pwd)/pintos",target=/home/BUOS/pintos \
+          buec440/pintos:latest \
+          /bin/bash -c " \
+            cd /home/BUOS/pintos && \
+            source setup.sh && \
+            cd src/threads && \
+            make clean && \
+            make \
+          "
