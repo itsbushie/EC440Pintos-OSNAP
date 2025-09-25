@@ -1,6 +1,7 @@
 # Notes 
 The Initial .bashrc file is for usage with Windows Docker instances outside the pintos OS
 
+Merges to main will require a build. Build failure will result in the inabilty to merge. 
 
 
 
