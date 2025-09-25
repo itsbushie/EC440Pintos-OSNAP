@@ -22,10 +22,9 @@ jobs:
         mv src pintos/
         mv setup.sh pintos/
         mv README.md pintos/
-        # Build the Docker image from the new directory structure
-        docker build pintos --tag buec440/pintos:$(date +%s)
         
     - name: Run Pintos
       run: |
         # Change to the correct directory inside the built image and run the Pintos script
         docker run --rm -e BXSHARE='/home/BUOS/toolchain/x86_64/share/bochs' buec440/pintos:$(date +%s) /bin/bash -c "cd /home/BUOS/pintos && source setup.sh && cd src/threads && make clean && make"
+
