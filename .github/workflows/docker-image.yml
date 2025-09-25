@@ -27,6 +27,12 @@ jobs:
           username: itsbushie
           password: ${{ secrets.GHCR_PAT }}
 
+      - name: Mirror Docker Hub image to GHCR
+        run: |
+          docker pull buec440/pintos:latest
+          docker tag buec440/pintos:latest ghcr.io/itsbushie/pintos:latest
+          docker push ghcr.io/itsbushie/pintos:latest
+
       # Set up pintos directory
       - name: Set up directory on runner
         run: |
