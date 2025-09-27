@@ -70,6 +70,22 @@ static void *alloc_frame (struct thread *, size_t size);
 static void schedule (void);
 void thread_schedule_tail (struct thread *prev);
 static tid_t allocate_tid (void);
+static bool thread_priority_comparison(struct list_elem *a, const struct list_elem *b, void *aux);
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/*
+Implementing Priority Scheduling below
+*/
+
+static bool thread_priority_comparison(struct list_elem *a, const struct list_elem *b, void *aux UNUSED){
+   struct thread *threadA = list_entry(a, struct thread, elem);
+   struct thread *threadB = list_entry(b, struct thread, elem);
+
+   return ((threadA->priority) > (threadB->priority));
+}
+// Implement ordered insertion to thread_unblock() and thread_yield()
+///////////////////////////////////////////////////////////////////////////////////////////
 
 /* Initializes the threading system by transforming the code
    that's currently running into a thread.  This can't work in
@@ -237,7 +253,8 @@ thread_unblock (struct thread *t)
 
   old_level = intr_disable ();
   ASSERT (t->status == THREAD_BLOCKED);
-  list_push_back (&ready_list, &t->elem);
+   //Making sure our list is still ordered with ordered insert
+  list_insert_ordered (&ready_list, &t->elem, thread_priority_comparison, NULL);
   t->status = THREAD_READY;
   intr_set_level (old_level);
 }
@@ -308,7 +325,8 @@ thread_yield (void)
 
   old_level = intr_disable ();
   if (cur != idle_thread) 
-    list_push_back (&ready_list, &cur->elem);
+     //When inserting the current thread, make sure that it is scheduled
+    list_insert_ordered (&ready_list, &cur->elem, thread_priority_comparison, NULL);
   cur->status = THREAD_READY;
   schedule ();
   intr_set_level (old_level);
@@ -493,6 +511,7 @@ next_thread_to_run (void)
   if (list_empty (&ready_list))
     return idle_thread;
   else
+     //No need to change this as long as we keep updating "ready_list" with the highest priority being first for it to be chosen
     return list_entry (list_pop_front (&ready_list), struct thread, elem);
 }
 
@@ -582,3 +601,5 @@ allocate_tid (void)
 /* Offset of `stack' member within `struct thread'.
    Used by switch.S, which can't figure it out on its own. */
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);
+
+
