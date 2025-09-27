@@ -70,6 +70,7 @@ static void *alloc_frame (struct thread *, size_t size);
 static void schedule (void);
 void thread_schedule_tail (struct thread *prev);
 static tid_t allocate_tid (void);
+static bool thread_priority_comparison(struct list_elem *a, const struct list_elem *b, NULL);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +78,7 @@ static tid_t allocate_tid (void);
 Implementing Priority Scheduling below
 */
 
-bool thread_priority_comparison(struct list_elem *a, const struct List_elem *b, NULL){
+static bool thread_priority_comparison(struct list_elem *a, const struct list_elem *b, NULL){
    struct thread *threadA = list_entry(a, struct thread, elem);
    struct thread *threadB = list_entry(b, struct thread, elem);
 
