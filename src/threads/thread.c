@@ -71,6 +71,21 @@ static void schedule (void);
 void thread_schedule_tail (struct thread *prev);
 static tid_t allocate_tid (void);
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/*
+Implementing Priority Scheduling below
+*/
+
+bool thread_priority_comparison(struct list_elem *a, const struct List_elem *b, NULL){
+   struct thread *threadA = list_entry(a, struct thread, elem);
+   struct thread *threadB = list_entry(b, struct thread, elem);
+
+   return ((threadA->priority) > (threadB->priority));
+}
+// Implement ordered insertion to thread_unblock() and thread_yield()
+///////////////////////////////////////////////////////////////////////////////////////////
+
 /* Initializes the threading system by transforming the code
    that's currently running into a thread.  This can't work in
    general and it is possible in this case only because loader.S
@@ -586,16 +601,4 @@ allocate_tid (void)
    Used by switch.S, which can't figure it out on its own. */
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-/*
-Implementing Priority Scheduling below
-*/
-
-bool thread_priority_comparison(struct list_elem *a, const struct List_elem *b, NULL){
-   struct thread *threadA = list_entry(a, struct thread, elem);
-   struct thread *threadB = list_entry(b, struct thread, elem);
-
-   return ((threadA->priority) > (threadB->priority));
-}
-// Implement ordered insertion to thread_unblock() and thread_yield()
 
